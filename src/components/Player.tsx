@@ -28,12 +28,31 @@ export const Player = () => {
   const progressBarRef = useRef<HTMLDivElement>(null);
   const fullScreenProgressBarRef = useRef<HTMLDivElement>(null);
 
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>, ref: React.RefObject<HTMLDivElement>) => {
+  const handleSeekStart = (e: React.PointerEvent<HTMLDivElement>, ref: React.RefObject<HTMLDivElement>) => {
     e.stopPropagation();
     if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    seek(percent * duration);
+    
+    const element = ref.current;
+    
+    const updateSeek = (clientX: number) => {
+      const rect = element.getBoundingClientRect();
+      const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      seek(percent * duration);
+    };
+
+    updateSeek(e.clientX);
+
+    const handlePointerMove = (moveEvent: PointerEvent) => {
+      updateSeek(moveEvent.clientX);
+    };
+
+    const handlePointerUp = () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
   };
 
   if (!currentSong) return null;
@@ -83,10 +102,10 @@ export const Player = () => {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 bg-neutral-900 z-50 flex flex-col"
+            className="fixed inset-0 bg-neutral-900 z-[60] flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6">
+            <div className="flex items-center justify-between p-6 pt-12 md:pt-6">
               <button onClick={() => setIsExpanded(false)} className="text-white hover:text-neutral-300">
                 <ChevronDown className="w-8 h-8" />
               </button>
@@ -98,7 +117,7 @@ export const Player = () => {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 flex items-center justify-center p-8">
+            <div className="flex-1 flex items-center justify-center p-6 md:p-8">
               <div className="w-full max-w-md aspect-square bg-neutral-800 rounded-lg shadow-2xl overflow-hidden relative group">
                 {currentSong.thumbnail ? (
                   <img src={currentSong.thumbnail} alt={currentSong.title} className="w-full h-full object-cover" />
@@ -111,7 +130,7 @@ export const Player = () => {
             </div>
 
             {/* Controls Section */}
-            <div className="p-8 pb-12 space-y-8">
+            <div className="p-6 pb-24 md:p-8 md:pb-12 space-y-6 md:space-y-8">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-white mb-1">{currentSong.title}</h2>
@@ -124,8 +143,9 @@ export const Player = () => {
               <div className="space-y-2">
                 <div 
                   ref={fullScreenProgressBarRef}
-                  className="h-1.5 bg-neutral-700 rounded-full cursor-pointer group"
-                  onClick={(e) => handleSeek(e, fullScreenProgressBarRef)}
+                  className="h-1.5 bg-neutral-700 rounded-full cursor-pointer group py-2 bg-clip-content"
+                  onPointerDown={(e) => handleSeekStart(e, fullScreenProgressBarRef)}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <div 
                     className="h-full bg-white rounded-full relative group-hover:bg-green-500 transition-colors"
@@ -198,8 +218,9 @@ export const Player = () => {
               <div className="space-y-2">
                 <div 
                   ref={fullScreenProgressBarRef}
-                  className="h-1.5 bg-white/30 rounded-full cursor-pointer group backdrop-blur-sm"
-                  onClick={(e) => handleSeek(e, fullScreenProgressBarRef)}
+                  className="h-1.5 bg-white/30 rounded-full cursor-pointer group backdrop-blur-sm py-2 bg-clip-content"
+                  onPointerDown={(e) => handleSeekStart(e, fullScreenProgressBarRef)}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <div 
                     className="h-full bg-white rounded-full relative group-hover:bg-green-500 transition-colors"
@@ -239,51 +260,67 @@ export const Player = () => {
       {/* Mini Player Bar - Hide when expanded */}
       {!isExpanded && (
         <div 
-          className="fixed bottom-0 left-0 right-0 h-[90px] bg-neutral-900 border-t border-white/10 px-4 flex items-center justify-between z-50 cursor-pointer hover:bg-neutral-800/50 transition-colors"
+          className="fixed bottom-[60px] md:bottom-0 left-0 right-0 h-[70px] md:h-[90px] bg-neutral-900 border-t border-white/10 px-4 flex items-center justify-between z-40 cursor-pointer hover:bg-neutral-800/50 transition-colors"
           onClick={() => setIsExpanded(true)}
         >
           {/* Song Info */}
-          <div className="flex items-center gap-4 w-[30%]">
+          <div className="flex items-center gap-3 md:gap-4 w-[60%] md:w-[30%]">
             {currentSong.thumbnail ? (
-              <img src={currentSong.thumbnail} alt={currentSong.title} className="w-14 h-14 rounded object-cover" />
+              <img src={currentSong.thumbnail} alt={currentSong.title} className="w-10 h-10 md:w-14 md:h-14 rounded object-cover" />
             ) : (
-              <div className="w-14 h-14 bg-neutral-800 rounded flex items-center justify-center text-neutral-500">
-                <Music className="w-6 h-6" />
+              <div className="w-10 h-10 md:w-14 md:h-14 bg-neutral-800 rounded flex items-center justify-center text-neutral-500">
+                <Music className="w-5 h-5 md:w-6 md:h-6" />
               </div>
             )}
             <div className="overflow-hidden">
-              <h4 className="text-white font-medium truncate">{currentSong.title}</h4>
-              <p className="text-neutral-400 text-sm truncate">{currentSong.artist}</p>
+              <h4 className="text-white font-medium truncate text-sm md:text-base">{currentSong.title}</h4>
+              <p className="text-neutral-400 text-xs md:text-sm truncate">{currentSong.artist}</p>
             </div>
           </div>
 
-          {/* Controls */}
-          <div className="flex flex-col items-center w-[40%]" onClick={e => e.stopPropagation()}>
+          {/* Mobile Play/Pause Button (Only visible on mobile) */}
+          <div className="md:hidden flex items-center pr-2" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={togglePlay}
+              className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-black shadow-lg"
+            >
+              {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
+            </button>
+          </div>
+
+          {/* Desktop Controls (Hidden on mobile) */}
+          <div className="hidden md:flex flex-col items-center w-[40%]" onClick={e => e.stopPropagation()}>
             <div className="flex items-center gap-6 mb-2">
               <button 
-                onClick={toggleShuffle}
+                onClick={(e) => { e.stopPropagation(); toggleShuffle(); }}
                 className={`text-neutral-400 hover:text-white transition-colors ${shuffle ? 'text-green-500' : ''}`}
               >
                 <Shuffle className="w-4 h-4" />
               </button>
               
-              <button onClick={prevSong} className="text-neutral-400 hover:text-white transition-colors">
+              <button 
+                onClick={(e) => { e.stopPropagation(); prevSong(); }}
+                className="text-neutral-400 hover:text-white transition-colors"
+              >
                 <SkipBack className="w-5 h-5" />
               </button>
               
               <button 
-                onClick={togglePlay}
+                onClick={(e) => { e.stopPropagation(); togglePlay(); }}
                 className="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform text-black"
               >
                 {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
               </button>
               
-              <button onClick={nextSong} className="text-neutral-400 hover:text-white transition-colors">
+              <button 
+                onClick={(e) => { e.stopPropagation(); nextSong(); }}
+                className="text-neutral-400 hover:text-white transition-colors"
+              >
                 <SkipForward className="w-5 h-5" />
               </button>
               
               <button 
-                onClick={toggleRepeat}
+                onClick={(e) => { e.stopPropagation(); toggleRepeat(); }}
                 className={`text-neutral-400 hover:text-white transition-colors ${repeat !== 'off' ? 'text-green-500' : ''}`}
               >
                 <Repeat className="w-4 h-4" />
@@ -295,22 +332,25 @@ export const Player = () => {
               <span>{formatTime(progress)}</span>
               <div 
                 ref={progressBarRef}
-                className="flex-1 h-1 bg-neutral-700 rounded-full cursor-pointer group"
-                onClick={(e) => handleSeek(e, progressBarRef)}
+                className="flex-1 h-4 flex items-center cursor-pointer group"
+                onPointerDown={(e) => handleSeekStart(e, progressBarRef)}
+                onClick={(e) => e.stopPropagation()}
               >
-                <div 
-                  className="h-full bg-white rounded-full group-hover:bg-green-500 transition-colors relative"
-                  style={{ width: `${(progress / duration) * 100}%` }}
-                >
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow" />
+                <div className="w-full h-1 bg-neutral-700 rounded-full relative">
+                  <div 
+                    className="h-full bg-white rounded-full group-hover:bg-green-500 transition-colors relative"
+                    style={{ width: `${(progress / duration) * 100}%` }}
+                  >
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow" />
+                  </div>
                 </div>
               </div>
               <span>{formatTime(duration)}</span>
             </div>
           </div>
 
-          {/* Volume */}
-          <div className="flex items-center justify-end gap-3 w-[30%]" onClick={e => e.stopPropagation()}>
+          {/* Volume (Hidden on mobile) */}
+          <div className="hidden md:flex items-center justify-end gap-3 w-[30%]" onClick={e => e.stopPropagation()}>
             <button onClick={() => setVolume(volume === 0 ? 1 : 0)} className="text-neutral-400 hover:text-white">
               {volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
             </button>
@@ -332,6 +372,14 @@ export const Player = () => {
             <button onClick={() => setIsExpanded(true)} className="ml-2 text-neutral-400 hover:text-white">
                <ChevronUp className="w-5 h-5" />
             </button>
+          </div>
+          
+          {/* Mobile Progress Bar (Thin line at top) */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-neutral-800 md:hidden pointer-events-none">
+            <div 
+              className="h-full bg-white"
+              style={{ width: `${(progress / duration) * 100}%` }}
+            />
           </div>
         </div>
       )}

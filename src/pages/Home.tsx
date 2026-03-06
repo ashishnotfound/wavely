@@ -68,7 +68,7 @@ export const Home = () => {
             variants={container}
             initial="hidden"
             animate="show"
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+            className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5"
           >
             {continueListening.map(song => (
               <motion.div key={song.id} variants={item}>
@@ -87,7 +87,7 @@ export const Home = () => {
             variants={container}
             initial="hidden"
             animate="show"
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+            className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5"
           >
             {recentlyPlayed.map(song => (
               <motion.div key={song.id} variants={item}>
@@ -102,7 +102,7 @@ export const Home = () => {
       {mostPlayed.length > 0 && (
         <section>
           <h2 className="text-2xl font-bold text-white mb-6">Most Played</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5">
             {mostPlayed.map(song => (
               <SongCard key={song.id} song={song} />
             ))}
@@ -114,7 +114,7 @@ export const Home = () => {
       {recentlyAdded.length > 0 && (
         <section>
           <h2 className="text-2xl font-bold text-white mb-6">Recently Added</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5">
             {recentlyAdded.map(song => (
               <SongCard key={song.id} song={song} />
             ))}

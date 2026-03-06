@@ -56,14 +56,14 @@ export const Playlist = () => {
   return (
     <div className="p-8 pb-32">
       {/* Header */}
-      <div className="flex items-end gap-6 mb-8">
-        <div className="w-52 h-52 bg-gradient-to-br from-green-500 to-emerald-900 shadow-2xl rounded-lg flex items-center justify-center">
+      <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-8 text-center md:text-left">
+        <div className="w-52 h-52 bg-gradient-to-br from-green-500 to-emerald-900 shadow-2xl rounded-lg flex items-center justify-center shrink-0">
           <span className="text-6xl">🎵</span>
         </div>
         <div className="flex-1">
           <p className="text-sm font-bold uppercase tracking-wider text-white mb-2">Playlist</p>
-          <h1 className="text-6xl font-bold text-white mb-6">{playlist.name}</h1>
-          <div className="flex items-center gap-2 text-neutral-400 text-sm">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">{playlist.name}</h1>
+          <div className="flex items-center justify-center md:justify-start gap-2 text-neutral-400 text-sm">
             <span className="text-white font-bold">User</span>
             <span>•</span>
             <span>{playlist.songs.length} songs</span>
@@ -72,7 +72,7 @@ export const Playlist = () => {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex items-center justify-center md:justify-start gap-4 mb-8">
         <button 
           onClick={handlePlayAll}
           className="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg"
@@ -91,18 +91,18 @@ export const Playlist = () => {
 
       {/* Songs List */}
       <div className="space-y-2">
-        <div className="grid grid-cols-[16px_1fr_1fr_1fr_40px] gap-4 px-4 py-2 text-neutral-400 text-sm border-b border-white/10 uppercase tracking-wider font-medium">
+        <div className="grid grid-cols-[16px_1fr_40px] md:grid-cols-[16px_1fr_1fr_1fr_40px] gap-4 px-4 py-2 text-neutral-400 text-sm border-b border-white/10 uppercase tracking-wider font-medium">
           <span>#</span>
           <span>Title</span>
-          <span>Album</span>
-          <span className="flex justify-end"><Clock className="w-4 h-4" /></span>
+          <span className="hidden md:block">Album</span>
+          <span className="hidden md:flex justify-end"><Clock className="w-4 h-4" /></span>
           <span></span>
         </div>
 
         {playlist.songs.map((song, index) => (
           <div 
             key={song.id}
-            className="group grid grid-cols-[16px_1fr_1fr_1fr_40px] gap-4 px-4 py-3 rounded-md hover:bg-white/10 transition-colors items-center text-sm text-neutral-400 hover:text-white"
+            className="group grid grid-cols-[16px_1fr_40px] md:grid-cols-[16px_1fr_1fr_1fr_40px] gap-4 px-4 py-3 rounded-md hover:bg-white/10 transition-colors items-center text-sm text-neutral-400 hover:text-white"
           >
             <span className="text-center group-hover:hidden">{index + 1}</span>
             <button 
@@ -120,9 +120,9 @@ export const Playlist = () => {
               </div>
             </div>
 
-            <span className="truncate">{song.album || '-'}</span>
+            <span className="truncate hidden md:block">{song.album || '-'}</span>
             
-            <span className="text-right font-mono">{formatTime(song.duration)}</span>
+            <span className="text-right font-mono hidden md:block">{formatTime(song.duration)}</span>
 
             <div className="relative flex justify-end">
               <button 

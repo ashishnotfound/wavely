@@ -16,6 +16,7 @@ export const SongCard = ({ song }: SongCardProps) => {
 
   const handlePlay = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     playSong(song);
   };
 
@@ -33,7 +34,10 @@ export const SongCard = ({ song }: SongCardProps) => {
 
   return (
     <>
-      <div className="group relative bg-neutral-800/50 hover:bg-neutral-800 rounded-lg p-4 transition-all duration-300 ease-out hover:shadow-2xl hover:scale-[1.02]">
+      <div 
+        onClick={() => playSong(song)}
+        className="group relative bg-neutral-800/50 hover:bg-neutral-800 rounded-lg p-4 transition-all duration-300 ease-out hover:shadow-2xl hover:scale-[1.02] cursor-pointer"
+      >
         <div className="relative aspect-square mb-4 rounded-md overflow-hidden">
           {song.thumbnail ? (
             <img src={song.thumbnail} alt={song.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -43,7 +47,7 @@ export const SongCard = ({ song }: SongCardProps) => {
             </div>
           )}
           
-          {/* Hover Overlay */}
+          {/* Hover Overlay - Visible on hover for desktop, hidden on mobile (since card click plays) */}
           <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center gap-4">
             <button 
               onClick={handlePlay}
@@ -58,10 +62,10 @@ export const SongCard = ({ song }: SongCardProps) => {
         <p className="text-neutral-400 text-sm truncate">{song.artist}</p>
 
         {/* Context Menu Button */}
-        <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-4 right-4 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
           <div className="relative">
             <button 
-              onClick={() => setShowMenu(!showMenu)}
+              onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
               className="p-2 bg-black/60 rounded-full hover:bg-black/80 text-white backdrop-blur-sm"
             >
               <MoreHorizontal className="w-4 h-4" />
